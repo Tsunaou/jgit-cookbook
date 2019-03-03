@@ -2,6 +2,7 @@ package org.dstadler.jgit.project;
 
 import org.apache.commons.io.FileUtils;
 import org.dstadler.jgit.helper.CookbookHelper;
+import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
@@ -9,6 +10,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +22,34 @@ import java.time.ZoneOffset;
 //以JAVA-2018-homework为例测试JGit的API
 
 public class openJavaHomework {
-    public static void main(String[] args) throws IOException, GitAPIException {
+    
+    public String remotePath = "https://github.com/centic9/jgit-cookbook";//远程库路径
+    public static String localPath = "E:\\大三下\\创新项目\\JGit Test\\";//下载已有仓库到本地路径
 
+    @Test
+    //从github上clone代码
+    public void testClone() throws IOException, GitAPIException {
         
+        //设置远程服务器上的用户名和密码（若clone的是自己的private的仓库则需要此操作）
+        UsernamePasswordCredentialsProvider usernamePasswordCredentialsProvider =new
+                UsernamePasswordCredentialsProvider("username","password");
+
+        //clone代码库命令
+        CloneCommand cloneCommand = Git.cloneRepository();
+
+        Git git= cloneCommand.setURI(remotePath) //设置远程URI
+                .setBranch("master") //设置clone下来的分支
+                .setDirectory(new File(localPath)) //设置下载存放路径
+                //.setCredentialsProvider(usernamePasswordCredentialsProvider) //设置权限验证
+                .call();
+
+        System.out.print(git.tag());
+    }
+
+    
+    public static void main(String[] args) throws IOException, GitAPIException {
         // 设置文件路径
-        File repoDir = new File("E:\\大三上\\JAVA程序设计\\java-2018f-homework\\.git");
+        File repoDir = new File(localPath+".git");
         // 用FileRepositoryBuilder打开一个仓库
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
         // 获得对于一个仓库的引用
@@ -50,7 +76,6 @@ public class openJavaHomework {
                 });          
             }
             
-            //JGit获取某个代码的文本
         }
 
     }
