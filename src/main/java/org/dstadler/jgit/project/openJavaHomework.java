@@ -6,10 +6,14 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 
 //以JAVA-2018-homework为例测试JGit的API
@@ -34,8 +38,19 @@ public class openJavaHomework {
             Ref head = repository.exactRef("refs/heads/master");
             System.out.println("Ref of refs/heads/master: " + head);
             
+            //通过RevWalk获得git log的模拟(commit, Author, Date, Message,etc.)
+            try (RevWalk revWalk = new RevWalk(repository)) {
+                RevCommit lastCommit = revWalk.parseCommit(head.getObjectId());
+                revWalk.markStart(lastCommit);
+                revWalk.forEach(c -> {
+                    System.out.println("commit " + c.getName());
+                    System.out.printf("Author: %s <%s>\n", c.getAuthorIdent().getName(), c.getAuthorIdent().getEmailAddress());
+                    System.out.println("Date: " + LocalDateTime.ofEpochSecond(c.getCommitTime(), 0, ZoneOffset.UTC));
+                    System.out.println("\t" + c.getShortMessage() + "\n");
+                });          
+            }
             
-            
+            //JGit获取某个代码的文本
         }
 
     }
